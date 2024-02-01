@@ -5,17 +5,19 @@ import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
-import androidx.appcompat.app.AlertDialog;
+import android.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.kunzisoft.switchdatetime.date.OnYearSelectedListener;
@@ -25,6 +27,7 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -87,6 +90,8 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
 
     private boolean blockAnimationIn;
     private boolean blockAnimationOut;
+    private boolean isDateSelected;
+    private boolean isDateSelectionMandatory=false;
 
     /**
      * Create a new instance of SwitchDateTimeDialogFragment
@@ -188,6 +193,7 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
         // Lock animation for fast clicks
         blockAnimationIn = false;
         blockAnimationOut = false;
+        isDateSelected = false;
         viewSwitcher = dateTimeLayout.findViewById(R.id.dateSwitcher);
         viewSwitcher.getInAnimation().setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -259,7 +265,7 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
             dayAndMonthSimpleDate = new SimpleDateFormat("MMMM dd", Locale.getDefault());
         if (yearSimpleDate == null)
             yearSimpleDate = new SimpleDateFormat("yyyy", Locale.getDefault());
-
+        SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm",Locale.getDefault());
         dayAndMonthSimpleDate.setTimeZone(timeZone);
         yearSimpleDate.setTimeZone(timeZone);
 
@@ -302,6 +308,8 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
                 yearHeaderValues.setText(yearSimpleDate.format(dateTimeCalendar.getTime()));
                 monthAndDayHeaderValues.setText(dayAndMonthSimpleDate.format(dateTimeCalendar.getTime()));
                 timePicker.clickHour();
+                isDateSelected =true;
+                Log.e(TAG, "onDateSelected "+fullDateFormat.format(dateTimeCalendar.getTime()));
             }
         });
         materialCalendarView.invalidate();
@@ -325,7 +333,7 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
                 materialCalendarView.goToPrevious();
             }
         });
-
+        final AlertDialog dialog;
         // Assign buttons
         AlertDialog.Builder db;
         if (alertStyleId != 0) {
@@ -340,7 +348,14 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
                 DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         if (mListener != null) {
-                            mListener.onPositiveButtonClick(dateTimeCalendar.getTime());
+                            if(isDateSelectionMandatory&&!isDateSelected){
+                                controlDismiss(dialog,false);
+                                mListener.onPositiveButtonClick(null);
+                            }else{
+                                controlDismiss(dialog,true);
+                                mListener.onPositiveButtonClick(dateTimeCalendar.getTime());
+                            }
+
                         }
                     }
                 });
@@ -366,7 +381,36 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
                 }
             });
         }
+        dialog = db.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        // TODO Do something
+
+                        //Dismiss once everything is OK.
+                        dialog.dismiss();
+                    }
+                });
+            }
+        });
         return db.create();
+    }
+
+    protected void controlDismiss(DialogInterface dialog, boolean needDismiss) {
+        if(dialog!=null) {
+            try {
+                Field field = dialog.getClass().getSuperclass().getDeclaredField("mShowing");
+                field.setAccessible(true);
+                field.set(dialog, needDismiss);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void setDefaultLocale(String mDefaultLocale) {
@@ -593,6 +637,10 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
      */
     public void setHighlightAMPMSelection(boolean highlightAMPMSelection) {
         this.highlightAMPMSelection = highlightAMPMSelection;
+    }
+
+    public void setDateSelectionMandatory(boolean dateSelectionMandatory) {
+        isDateSelectionMandatory = dateSelectionMandatory;
     }
 
     /**

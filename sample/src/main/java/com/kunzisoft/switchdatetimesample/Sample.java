@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment;
 
@@ -65,6 +66,7 @@ public class Sample extends AppCompatActivity {
         // Assign unmodifiable values
         dateTimeFragment.set24HoursMode(false);
         dateTimeFragment.setHighlightAMPMSelection(false);
+        dateTimeFragment.setDateSelectionMandatory(true);
         dateTimeFragment.setMinimumDateTime(new GregorianCalendar(2015, Calendar.JANUARY, 1).getTime());
         dateTimeFragment.setMaximumDateTime(new GregorianCalendar(2025, Calendar.DECEMBER, 31).getTime());
 
@@ -80,7 +82,12 @@ public class Sample extends AppCompatActivity {
         dateTimeFragment.setOnButtonClickListener(new SwitchDateTimeDialogFragment.OnButtonWithNeutralClickListener() {
             @Override
             public void onPositiveButtonClick(Date date) {
-                textView.setText(myDateFormat.format(date));
+                if(date==null){
+                    Toast.makeText(Sample.this, "Please select a date",Toast.LENGTH_LONG).show();
+                }else{
+                    textView.setText(myDateFormat.format(date));
+
+                }
             }
 
             @Override
