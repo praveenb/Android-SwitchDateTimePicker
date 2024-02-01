@@ -333,7 +333,6 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
                 materialCalendarView.goToPrevious();
             }
         });
-        final AlertDialog dialog;
         // Assign buttons
         AlertDialog.Builder db;
         if (alertStyleId != 0) {
@@ -366,6 +365,7 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         // Close dialog
                         if (mListener != null) {
+                            controlDismiss(dialog,true);
                             mListener.onNegativeButtonClick(dateTimeCalendar.getTime());
                         }
                     }
@@ -375,29 +375,14 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if (mListener != null) {
+                        controlDismiss(dialog,true);
                         if (mListener instanceof OnButtonWithNeutralClickListener)
                             ((OnButtonWithNeutralClickListener) mListener).onNeutralButtonClick(dateTimeCalendar.getTime());
                     }
                 }
             });
         }
-        dialog = db.create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new View.OnClickListener() {
 
-                    @Override
-                    public void onClick(View view) {
-                        // TODO Do something
-
-                        //Dismiss once everything is OK.
-                        dialog.dismiss();
-                    }
-                });
-            }
-        });
         return db.create();
     }
 
