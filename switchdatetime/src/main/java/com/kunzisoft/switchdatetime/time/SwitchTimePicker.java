@@ -913,6 +913,14 @@ public class SwitchTimePicker implements RadialPickerLayout.OnValueSelectedListe
         mCurrentViewShow = viewIndex;
     }
 
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
     public void clickHour() {
         isSelected = true;
         setCurrentItemShowing(HOUR_INDEX, true, false, true);

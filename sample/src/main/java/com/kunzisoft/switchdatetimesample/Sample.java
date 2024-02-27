@@ -66,7 +66,7 @@ public class Sample extends AppCompatActivity {
         // Assign unmodifiable values
         dateTimeFragment.set24HoursMode(false);
         dateTimeFragment.setHighlightAMPMSelection(false);
-        dateTimeFragment.setDateSelectionMandatory(true);
+        dateTimeFragment.setTimeSelectionMandatory(true);
         dateTimeFragment.setMinimumDateTime(new GregorianCalendar(2015, Calendar.JANUARY, 1).getTime());
         dateTimeFragment.setMaximumDateTime(new GregorianCalendar(2025, Calendar.DECEMBER, 31).getTime());
 
@@ -83,7 +83,7 @@ public class Sample extends AppCompatActivity {
             @Override
             public void onPositiveButtonClick(Date date) {
                 if(date==null){
-                    Toast.makeText(Sample.this, "Please select a date",Toast.LENGTH_LONG).show();
+                    Toast.makeText(Sample.this, "Please select a time",Toast.LENGTH_LONG).show();
                 }else{
                     textView.setText(myDateFormat.format(date));
 

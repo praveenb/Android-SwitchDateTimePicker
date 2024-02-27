@@ -90,8 +90,7 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
 
     private boolean blockAnimationIn;
     private boolean blockAnimationOut;
-    private boolean isDateSelected;
-    private boolean isDateSelectionMandatory=false;
+    private boolean isTimeSelectionMandatory=false;
 
     /**
      * Create a new instance of SwitchDateTimeDialogFragment
@@ -193,7 +192,6 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
         // Lock animation for fast clicks
         blockAnimationIn = false;
         blockAnimationOut = false;
-        isDateSelected = false;
         viewSwitcher = dateTimeLayout.findViewById(R.id.dateSwitcher);
         viewSwitcher.getInAnimation().setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -241,6 +239,10 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
                 Utils.animLabelElement(view);
                 if (!(blockAnimationIn && blockAnimationOut))
                     viewSwitcher.showNext();
+                Log.e(TAG, "currentPosition "+ viewSwitcher.getDisplayedChild());
+                if(viewSwitcher.getDisplayedChild()==0){
+                    timePicker.setSelected(true);
+                }
             }
         });
 
@@ -308,7 +310,6 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
                 yearHeaderValues.setText(yearSimpleDate.format(dateTimeCalendar.getTime()));
                 monthAndDayHeaderValues.setText(dayAndMonthSimpleDate.format(dateTimeCalendar.getTime()));
                 timePicker.clickHour();
-                isDateSelected =true;
                 Log.e(TAG, "onDateSelected "+fullDateFormat.format(dateTimeCalendar.getTime()));
             }
         });
@@ -347,7 +348,8 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
                 DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         if (mListener != null) {
-                            if(isDateSelectionMandatory&&!isDateSelected){
+                            if(isTimeSelectionMandatory&&!timePicker.isSelected()){
+                                timePicker.clickHour();
                                 controlDismiss(dialog,false);
                                 mListener.onPositiveButtonClick(null);
                             }else{
@@ -624,8 +626,8 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
         this.highlightAMPMSelection = highlightAMPMSelection;
     }
 
-    public void setDateSelectionMandatory(boolean dateSelectionMandatory) {
-        isDateSelectionMandatory = dateSelectionMandatory;
+    public void setTimeSelectionMandatory(boolean dateSelectionMandatory) {
+        isTimeSelectionMandatory = dateSelectionMandatory;
     }
 
     /**
@@ -701,7 +703,9 @@ public class SwitchDateTimeDialogFragment extends DialogFragment {
             Utils.animLabelElement(view);
             if (viewSwitcher.getDisplayedChild() != positionView)
                 viewSwitcher.setDisplayedChild(positionView);
-
+            if(positionView==0){
+                timePicker.setSelected(true);
+            }
             startAtPosition = positionView;
         }
     }
